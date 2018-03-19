@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="SimplaeGame-css.css">
+<title>Insert title here</title>
+
+
+</head>
+<body>
+	<div id ="game-zone">
+	<img id ="rectangle" src="m.png">
+	<div id="bullet"></div>
+	<img id ="mf" src="mf.jpg">
+	</div>
+	<div id="result">
+	<table>
+		<tr>
+			<th>Score</th>
+			<th>Left bullets</th>
+		</tr>
+		<tr>
+		<td id = "score">0</td>
+		<td id="left_bullets">100</td>
+		</tr>
+	</table>
+	<div  id="end"> </div>
+	</div>
+<script>
+// poprincip funkciite trqbva da pravqt samo edno neshto, no moite sa multifunkcionalni
+// shte si opravq koda, kato si napisha i sledvashtoto domashno
+// imam dosta izlishen kod
+//izstrelva se nov bulet samo, kogato predishniqt e stignal kraq na game-zone
+		var leftBullets = 100;
+		var score = 0;
+			var rectangle = {
+					x:0,
+					speed:2,
+					dom:document.getElementById("rectangle"),
+					isRightMove : true,
+			}
+	function moveRectangle(){
+		
+				if(rectangle.x <= 626 && rectangle.isRightMove){
+					rectangle.x += rectangle.speed;	
+			
+					if(rectangle.x == 700 - 100){
+					rectangle.isRightMove = false;
+					
+					}
+				}else if(!rectangle.isRightMove){
+					
+					if(rectangle.x == 0){
+						rectangle.isRightMove = true;
+					}
+					rectangle.x -= rectangle.speed;
+				}
+				rectangle.dom.style.left = rectangle.x+"px";
+		}
+			
+	var mf = {
+		x:0,
+		moveLeft:false,
+		moveRight:false,
+		speed:3,
+		dom:document.getElementById("mf")
+	}
+	
+	function moveMf(){
+		if(mf.moveLeft && mf.x > 0 ){
+			mf.x -= mf.speed;
+		}
+		if(mf.moveRight && mf.x <570){
+			mf.x += mf.speed;
+		}
+		mf.dom.style.left = mf.x + "px";
+	}
+	
+	var bullet = {
+			y:0,
+			speed:3,
+			dom:document.getElementById("bullet"),
+			bulletTop: 330,
+			isShot: false,
+			isReady: true,
+		}
+	
+	function moveBullet(){
+		bullet.dom.style.left = bullet.y +"px";
+		bullet.dom.style.display="none";
+		bullet.dom.style.top = bullet.bulletTop +"px";
+		if(bullet.isShot){
+			bullet.dom.style.display="block";
+			bullet.bulletTop = bullet.bulletTop - 5;
+			bullet.dom.style.top= bullet.bulletTop + "px";
+			var targetPosition = rectangle.x +100;
+			var scoreDom = document.getElementById("score");
+			if(bullet.bulletTop == 100 && (bullet.y <= targetPosition && bullet.y >= rectangle.x )){ 
+				score++;
+				scoreDom.innerHTML=score;
+				console.log(score);
+				
+			}
+			if(bullet.bulletTop < 7){
+				bullet.isReady=true;
+				bullet.isShot=false;
+				bullet.bulletTop = 330;
+			}
+		}
+	}
+	
+	function onKeyEvents(keyCode,state){
+		if(keyCode == 37){
+			mf.moveLeft = state;
+		}
+		if(keyCode == 39){
+			mf.moveRight = state;
+		}
+		if(keyCode == 32){
+			if(state && bullet.isReady){
+			bullet.isShot = state;
+			bullet.y = mf.x;
+			bullet.isReady = false;
+			var bul = document.getElementById("left_bullets");
+			leftBullets--;
+			bul.innerHTML = leftBullets; 
+			}
+		}
+	}
+		
+	function keysEvents(){
+		document.addEventListener("keydown",function(){
+			onKeyEvents(event.keyCode,true)			
+		},false)
+		document.addEventListener("keyup",function(){
+			onKeyEvents(event.keyCode,false)			
+		},false)
+	}
+	
+	var end = document.getElementById("end");
+	
+	function gameLoop(){
+	
+		 moveRectangle();
+		 keysEvents();
+		 moveMf();
+		moveBullet();
+		if(score == 5 && leftBullets <= 100){
+			end.innerHTML="YOU WIN"; //ostavila sam go na 5, za da proverqvam dali raboti
+			return;
+		}else if(score < 5 && leftBullets < 95){ //trqbva da e score < 70 && leftBullets < 0
+			end.innerHTML="GAME OVER";
+			return;
+		}
+		requestAnimationFrame(gameLoop);
+	}
+	requestAnimationFrame(gameLoop);
+	</script>
+</body>
+</html>
